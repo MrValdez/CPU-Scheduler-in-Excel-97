@@ -1,0 +1,758 @@
+'http://github.com/MrValdez/CPU-Schedule-in-Excel-97
+
+Option Explicit
+
+Dim Queue_Start_Location_X As Integer
+Dim Queue_Start_Location_Y As Integer
+
+Dim Scratch_Cell_Start_Location_X As Integer
+Dim Scratch_Cell_Start_Location_Y As Integer
+
+Dim Arrival_Time_Start_Location_X As Integer
+Dim Arrival_Time_Start_Location_Y As Integer
+
+Dim GC_Start_Location_X As Integer
+Dim GC_Start_Location_Y As Integer
+
+Dim Quantum_Cell_Location_X As Integer
+Dim Quantum_Cell_Location_Y As Integer
+
+Dim Current_Tick As Integer
+Dim Current_Tick_Location As Integer
+
+Dim WaitingTime_Job1 As Integer
+Dim WaitingTime_Job2 As Integer
+Dim WaitingTime_Job3 As Integer
+Dim WaitingTime_Job4 As Integer
+Dim WaitingTime_Job5 As Integer
+
+Dim DataUp_Job1 As Boolean
+Dim DataUp_Job2 As Boolean
+Dim DataUp_Job3 As Boolean
+Dim DataUp_Job4 As Boolean
+Dim DataUp_Job5 As Boolean
+
+Dim Tick_Burst As Integer
+Dim Tick_JobNumber As Integer
+Dim Tick_ArrivalTime As Integer
+Dim Tick_FinishTime As Integer
+Dim Draw_CPUIDLE As Boolean
+
+Const LIMIT_BREAK = 9999
+
+Dim Tick_Step_Start As Boolean
+Dim Tick_Step_Done As Boolean
+
+Private Sub StartHere()
+    Current_Tick = 0
+    Current_Tick_Location = 0
+    
+    Queue_Start_Location_X = 3
+    Queue_Start_Location_Y = 11
+    
+    Scratch_Cell_Start_Location_X = 3
+    Scratch_Cell_Start_Location_Y = 16
+    
+    Arrival_Time_Start_Location_X = 2
+    Arrival_Time_Start_Location_Y = 2
+    
+    Quantum_Cell_Location_X = 2
+    Quantum_Cell_Location_Y = 8
+    
+    GC_Start_Location_X = 4
+    GC_Start_Location_Y = 10
+    
+    WaitingTime_Job1 = 0
+    WaitingTime_Job2 = 0
+    WaitingTime_Job3 = 0
+    WaitingTime_Job4 = 0
+    WaitingTime_Job5 = 0
+    
+    DataUp_Job1 = False
+    DataUp_Job2 = False
+    DataUp_Job3 = False
+    DataUp_Job4 = False
+    DataUp_Job5 = False
+    
+    Tick_Burst = 0
+    Tick_JobNumber = LIMIT_BREAK
+    
+    Tick_Step_Start = True
+    Tick_Step_Done = False
+End Sub
+
+Private Sub cmdReset_Click()
+    StartHere
+    
+    Dim i As Integer
+    For i = 0 To 4
+        Cells(Scratch_Cell_Start_Location_Y - 1, Scratch_Cell_Start_Location_X + i) = ""
+        Cells(Scratch_Cell_Start_Location_Y + 0, Scratch_Cell_Start_Location_X + i) = ""
+        Cells(Scratch_Cell_Start_Location_Y + 1, Scratch_Cell_Start_Location_X + i) = ""
+        Cells(Scratch_Cell_Start_Location_Y + 2, Scratch_Cell_Start_Location_X + i) = ""
+        
+        Cells(Queue_Start_Location_Y - 1, Queue_Start_Location_X + i) = ""
+        Cells(Queue_Start_Location_Y + 0, Queue_Start_Location_X + i) = ""
+        Cells(Queue_Start_Location_Y + 1, Queue_Start_Location_X + i) = ""
+        Cells(Queue_Start_Location_Y + 2, Queue_Start_Location_X + i) = ""
+    Next
+    
+    For i = 0 To GC_Start_Location_Y
+        Cells(GC_Start_Location_Y + i, GC_Start_Location_X).Select
+        Columns(GC_Start_Location_Y + i).AutoFit
+    Next
+    
+    For i = -2 To 0
+        Cells(1, GC_Start_Location_Y + i).Select
+        ActiveCell.Interior.ColorIndex = 0
+        Cells(2, GC_Start_Location_Y + i).Select
+        ActiveCell.Interior.ColorIndex = 0
+        Cells(3, GC_Start_Location_Y + i).Select
+        ActiveCell.Interior.ColorIndex = 0
+        Cells(4, GC_Start_Location_Y + i).Select
+        ActiveCell.Interior.ColorIndex = 0
+        Cells(5, GC_Start_Location_Y + i).Select
+        ActiveCell.Interior.ColorIndex = 0
+        Cells(6, GC_Start_Location_Y + i).Select
+        ActiveCell.Interior.ColorIndex = 0
+    Next
+
+    
+    Cells(GC_Start_Location_Y - 2, GC_Start_Location_X).Select
+    ActiveCell.ColumnWidth = 7
+    
+    Cells(4, 1).Select
+    ActiveCell.RowHeight = 12
+        
+    For i = 0 To 100
+        Columns(GC_Start_Location_Y + i).ColumnWidth = 0
+        Cells(4, GC_Start_Location_Y + i) = ""
+        Cells(5, GC_Start_Location_Y + i) = ""
+        ActiveCell.Interior.ColorIndex = 0
+    Next
+    
+    Cells(1).Select
+    ActiveCell.ColumnWidth = 16
+End Sub
+
+Private Sub cmdStart_Click()
+    StartHere
+           
+    FirstBorder
+    
+    StartSimulation
+End Sub
+
+Private Sub FirstBorder()
+    Cells(GC_Start_Location_Y, GC_Start_Location_X).Select
+    Columns(GC_Start_Location_Y).ColumnWidth = 1
+    
+    Cells(GC_Start_Location_Y - 2, GC_Start_Location_X).Select
+    Columns(GC_Start_Location_Y - 2).ColumnWidth = 3
+    
+    ColorCell 9, GC_Start_Location_Y - 2, GC_Start_Location_X - 2, GC_Start_Location_X + 2
+    ColorCell 0, GC_Start_Location_Y - 2, GC_Start_Location_X - 0, GC_Start_Location_X + 0
+    ColorCell 9, GC_Start_Location_Y - 1, GC_Start_Location_X - 2, GC_Start_Location_X - 2
+    ColorCell 9, GC_Start_Location_Y - 1, GC_Start_Location_X + 2, GC_Start_Location_X + 2
+    
+    ColorCell 11, GC_Start_Location_Y + 0, GC_Start_Location_X - 1, GC_Start_Location_X + 1
+    ColorCell 9, GC_Start_Location_Y, GC_Start_Location_X - 2, GC_Start_Location_X - 2
+    ColorCell 9, GC_Start_Location_Y, GC_Start_Location_X + 2, GC_Start_Location_X + 2
+End Sub
+
+Private Sub ColorCell(Color As Long, Column As Integer, From_Row As Integer, To_Row As Integer)
+    Dim i As Integer
+    
+    For i = From_Row To To_Row
+        Cells(i, Column).Select
+        ActiveCell.Interior.ColorIndex = Color
+    Next
+End Sub
+
+Private Sub Init_SortQueue()
+    Dim AT As String
+    Dim Burst As String
+    Dim Priority As String
+    Dim i As Integer
+    Dim ch As String
+    
+    For i = 0 To 4
+        AT = Cells(Arrival_Time_Start_Location_Y + i, Arrival_Time_Start_Location_X + 0)
+        Burst = Cells(Arrival_Time_Start_Location_Y + i, Arrival_Time_Start_Location_X + 1)
+        Priority = Cells(Arrival_Time_Start_Location_Y + i, Arrival_Time_Start_Location_X + 2)
+        
+        If (IsNumeric(AT) And _
+            IsNumeric(Burst) And _
+            IsNumeric(Priority)) Then
+            Cells(Queue_Start_Location_Y - 1, Queue_Start_Location_X + i) = Burst
+            Cells(Queue_Start_Location_Y + 0, Queue_Start_Location_X + i) = AT
+            Cells(Queue_Start_Location_Y + 1, Queue_Start_Location_X + i) = (i + 1)
+            Cells(Queue_Start_Location_Y + 2, Queue_Start_Location_X + i) = Priority
+        Else
+            Exit For
+        End If
+    Next
+End Sub
+
+'todo: first_sort_location, second_sort_location
+Private Sub SortQueue(PrimarySort As Integer, SecondarySort As Integer, _
+                      IgnoreIncreasingArrivalTime As Boolean, _
+                      SecondarySort_ReverseSort As Boolean)
+    '''''''''''''''''''''''''''''
+    'Sort using Temporary space
+    Dim AT As String
+    Dim Burst As String
+    Dim Priority As String
+    Dim Job As String
+    Dim i As Integer
+    
+    For i = 0 To 4
+        Burst = Cells(Queue_Start_Location_Y - 1, Queue_Start_Location_X + i)
+        AT = Cells(Queue_Start_Location_Y + 0, Queue_Start_Location_X + i)
+        Job = Cells(Queue_Start_Location_Y + 1, Queue_Start_Location_X + i)
+        Priority = Cells(Queue_Start_Location_Y + 2, Queue_Start_Location_X + i)
+        
+        If Trim(Burst) = "" Or _
+            Trim(AT) = "" Or _
+            Trim(Priority) = "" Then
+            Cells(Scratch_Cell_Start_Location_Y - 1, Scratch_Cell_Start_Location_X + i) = ""
+            Cells(Scratch_Cell_Start_Location_Y + 0, Scratch_Cell_Start_Location_X + i) = ""
+            Cells(Scratch_Cell_Start_Location_Y + 1, Scratch_Cell_Start_Location_X + i) = ""
+            Cells(Scratch_Cell_Start_Location_Y + 2, Scratch_Cell_Start_Location_X + i) = ""
+        Else
+            Cells(Scratch_Cell_Start_Location_Y - 1, Scratch_Cell_Start_Location_X + i) = Burst
+            Cells(Scratch_Cell_Start_Location_Y + 0, Scratch_Cell_Start_Location_X + i) = AT
+            Cells(Scratch_Cell_Start_Location_Y + 1, Scratch_Cell_Start_Location_X + i) = Job
+            Cells(Scratch_Cell_Start_Location_Y + 2, Scratch_Cell_Start_Location_X + i) = Priority
+        End If
+    Next
+    
+    'Remove the blank entries
+    For i = 0 To 4
+        If Trim(Cells(Scratch_Cell_Start_Location_Y, Scratch_Cell_Start_Location_X + i)) = "" Then
+            MoveJobBlock Scratch_Cell_Start_Location_X + i, Scratch_Cell_Start_Location_X + i + 1, Scratch_Cell_Start_Location_Y
+        End If
+    Next
+    
+'    For i = 0 To 4
+'        If Trim(Cells(Scratch_Cell_Start_Location_Y, Scratch_Cell_Start_Location_X + i)) = "" Then
+'            For x = i + 1 To 4
+'                If Trim(Cells(Scratch_Cell_Start_Location_Y, Scratch_Cell_Start_Location_X + x)) <> "" Then
+'                    MoveJobBlock Scratch_Cell_Start_Location_X + i, Scratch_Cell_Start_Location_X + x, Scratch_Cell_Start_Location_Y
+'                End If
+'            Next
+'        End If
+'    Next
+        
+    Dim num1 As Integer
+    Dim num2 As Integer
+    
+    'Push the jobs that have not yet entered into the back
+'    For i = 0 To 4
+'        If Cells(Scratch_Cell_Start_Location_Y - 1, Scratch_Cell_Start_Location_X + i) > Current_Tick Then
+'            MoveJobBlock Scratch_Cell_Start_Location_X + i, Scratch_Cell_Start_Location_X + 4 - i, Scratch_Cell_Start_Location_Y
+'        End If
+'    Next
+        
+'    'Skip jobs that have not yet entered
+    Dim AT1 As Integer
+    Dim AT2 As Integer
+    
+    Dim y As Integer
+    Dim x As Integer
+    If (PrimarySort > 0) Then
+        'Perform Primary Sort
+        For y = 0 To 4
+            For x = (y + 1) To 4
+                If (Cells(PrimarySort, Scratch_Cell_Start_Location_X + y) <> "" And _
+                    Cells(PrimarySort, Scratch_Cell_Start_Location_X + x) <> "") Then
+                    num1 = Cells(PrimarySort, Scratch_Cell_Start_Location_X + y)
+                    num2 = Cells(PrimarySort, Scratch_Cell_Start_Location_X + x)
+
+                    If (IgnoreIncreasingArrivalTime = False And PrimarySort = Scratch_Cell_Start_Location_Y) Then
+                        'If we are sorting by AT, update the AT to the current_tick
+                        If (num1 < Current_Tick) Then num1 = Current_Tick
+                        If (num2 < Current_Tick) Then num2 = Current_Tick
+                    End If
+
+                    If (num1 > num2) Then
+                        MoveJobBlock Scratch_Cell_Start_Location_X + x, Scratch_Cell_Start_Location_X + y, PrimarySort
+                    End If
+                End If
+            Next
+        Next
+    End If
+'    If (PrimarySort > 0) Then
+'        'Perform Primary Sort
+'        For y = 4 To 0 Step -1
+'            For x = (y - 1) To 0 Step -1
+'                If (Cells(PrimarySort, Scratch_Cell_Start_Location_X + y) <> "" And _
+'                    Cells(PrimarySort, Scratch_Cell_Start_Location_X + x) <> "") Then
+'                    num1 = Cells(PrimarySort, Scratch_Cell_Start_Location_X + y)
+'                    num2 = Cells(PrimarySort, Scratch_Cell_Start_Location_X + x)
+'
+'                    If (IgnoreIncreasingArrivalTime = False And PrimarySort = Scratch_Cell_Start_Location_Y) Then
+'                        'If we are sorting by AT, update the AT to the current_tick
+'                        If (num1 < Current_Tick) Then num1 = Current_Tick
+'                        If (num2 < Current_Tick) Then num2 = Current_Tick
+'                    End If
+'
+'                    If (num2 > num1) Then
+'                        MoveJobBlock Scratch_Cell_Start_Location_X + x, Scratch_Cell_Start_Location_X + y, PrimarySort
+'                    End If
+'                End If
+'            Next
+'        Next
+    
+    'Remove the blank entries created when we sorted by arrival time
+    For i = 0 To 4
+        If Trim(Cells(Scratch_Cell_Start_Location_Y, Scratch_Cell_Start_Location_X + i)) = "" Then
+            For x = i + 1 To 4
+                If Trim(Cells(Scratch_Cell_Start_Location_Y, Scratch_Cell_Start_Location_X + x)) <> "" Then
+                    MoveJobBlock Scratch_Cell_Start_Location_X + i, Scratch_Cell_Start_Location_X + x, Scratch_Cell_Start_Location_Y
+                    Exit For
+                End If
+            Next
+        End If
+    Next
+    
+    If (SecondarySort > 0) Then
+        'Perform Secondary Sort
+        For y = 4 To 0 Step -1
+            For x = (y - 1) To 0 Step -1
+                If (Cells(PrimarySort, Scratch_Cell_Start_Location_X + y) <> "" And _
+                    Cells(PrimarySort, Scratch_Cell_Start_Location_X + x) <> "") Then
+                                        
+                    num1 = Cells(PrimarySort, Scratch_Cell_Start_Location_X + y)
+                    num2 = Cells(PrimarySort, Scratch_Cell_Start_Location_X + x)
+                    
+                    If (IgnoreIncreasingArrivalTime = False And PrimarySort = Scratch_Cell_Start_Location_Y) Then
+                        'If we are sorting by AT, update the AT to the current_tick
+                        If (num1 < Current_Tick) Then num1 = Current_Tick
+                        If (num2 < Current_Tick) Then num2 = Current_Tick
+                    End If
+                    
+                    If (num1) Then
+                        If (num2 = num1) Then
+                            num1 = Cells(SecondarySort, Scratch_Cell_Start_Location_X + y)
+                            num2 = Cells(SecondarySort, Scratch_Cell_Start_Location_X + x)
+                            
+                            If (Cells(PrimarySort, Scratch_Cell_Start_Location_X + y) <> "" And _
+                                Cells(PrimarySort, Scratch_Cell_Start_Location_X + x) <> "") Then
+                                    If (IgnoreIncreasingArrivalTime = False And SecondarySort = Scratch_Cell_Start_Location_Y) Then
+                                        'If we are sorting by AT, update the AT to the current_tick
+                                        If (num1 < Current_Tick) Then num1 = Current_Tick
+                                        If (num2 < Current_Tick) Then num2 = Current_Tick
+                                    End If
+            
+                                    If (num1 And _
+                                        (SecondarySort_ReverseSort = True And num1 > num2) Or _
+                                        (SecondarySort_ReverseSort = False And num1 < num2)) Then
+                                        MoveJobBlock Scratch_Cell_Start_Location_X + x, Scratch_Cell_Start_Location_X + y, Scratch_Cell_Start_Location_Y
+                                        
+                                        Exit For
+                                    End If
+                                End If
+                            End If
+                    End If
+                End If
+            Next
+        Next
+    End If
+        
+    '''''''''''''''''''''''''''''
+    'Move from Temporary space to Queue space
+    Dim temp1 As String
+    Dim temp2 As String
+    Dim temp3 As String
+    Dim temp4 As String
+    
+    For i = 0 To 4
+        temp1 = Cells(Scratch_Cell_Start_Location_Y - 1, Scratch_Cell_Start_Location_X + i)
+        temp2 = Cells(Scratch_Cell_Start_Location_Y + 0, Scratch_Cell_Start_Location_X + i)
+        temp3 = Cells(Scratch_Cell_Start_Location_Y + 1, Scratch_Cell_Start_Location_X + i)
+        temp4 = Cells(Scratch_Cell_Start_Location_Y + 2, Scratch_Cell_Start_Location_X + i)
+        
+        Cells(Queue_Start_Location_Y - 1, Queue_Start_Location_X + i) = temp1
+        Cells(Queue_Start_Location_Y + 0, Queue_Start_Location_X + i) = temp2
+        Cells(Queue_Start_Location_Y + 1, Queue_Start_Location_X + i) = temp3
+        Cells(Queue_Start_Location_Y + 2, Queue_Start_Location_X + i) = temp4
+    Next
+    
+    '''''''''''''''''''''''''''''
+    'Delete Temporary space
+    For i = 0 To 4
+        Cells(Scratch_Cell_Start_Location_Y - 1, Scratch_Cell_Start_Location_X + i) = ""
+        Cells(Scratch_Cell_Start_Location_Y + 0, Scratch_Cell_Start_Location_X + i) = ""
+        Cells(Scratch_Cell_Start_Location_Y + 1, Scratch_Cell_Start_Location_X + i) = ""
+        Cells(Scratch_Cell_Start_Location_Y + 2, Scratch_Cell_Start_Location_X + i) = ""
+    Next
+End Sub
+
+Private Sub MoveJobBlock(From_x As Integer, To_x As Integer, y As Integer)
+    Dim temp1 As String
+    Dim temp2 As String
+    Dim temp3 As String
+    Dim temp4 As String
+
+    temp1 = Cells(y - 1, From_x)
+    temp2 = Cells(y + 0, From_x)
+    temp3 = Cells(y + 1, From_x)
+    temp4 = Cells(y + 2, From_x)
+    
+    Cells(y - 1, From_x) = Cells(y - 1, To_x)
+    Cells(y + 0, From_x) = Cells(y + 0, To_x)
+    Cells(y + 1, From_x) = Cells(y + 1, To_x)
+    Cells(y + 2, From_x) = Cells(y + 2, To_x)
+    
+    Cells(y - 1, To_x) = temp1
+    Cells(y + 0, To_x) = temp2
+    Cells(y + 1, To_x) = temp3
+    Cells(y + 2, To_x) = temp4
+End Sub
+
+Private Sub WorkOnJob()
+    Dim temp1 As String
+    Dim temp2 As String
+    Dim temp3 As String
+    Dim temp4 As String
+
+    temp1 = Cells(Queue_Start_Location_Y - 1, Queue_Start_Location_X)
+    temp2 = Cells(Queue_Start_Location_Y + 0, Queue_Start_Location_X)
+    temp3 = Cells(Queue_Start_Location_Y + 1, Queue_Start_Location_X)
+    temp4 = Cells(Queue_Start_Location_Y + 2, Queue_Start_Location_X)
+    
+    Cells(Scratch_Cell_Start_Location_Y - 1, Queue_Start_Location_X) = temp1
+    Cells(Scratch_Cell_Start_Location_Y + 0, Queue_Start_Location_X) = temp2
+    Cells(Scratch_Cell_Start_Location_Y + 1, Queue_Start_Location_X) = temp3
+    Cells(Scratch_Cell_Start_Location_Y + 2, Queue_Start_Location_X) = temp4
+End Sub
+
+Private Sub Tick(ArrivalTime As Integer, Burst As Integer, JobNumber As Integer, BurstLeft As Integer)
+    Dim ColumnWidthPer As Integer
+    
+    ColumnWidthPer = Tick_Burst
+    If (ColumnWidthPer > 50) Then ColumnWidthPer = 50
+    
+    If (Current_Tick = 0 And Tick_JobNumber = LIMIT_BREAK) Then
+        Current_Tick = ArrivalTime
+        Current_Tick_Location = Current_Tick_Location + 1
+        Cells(GC_Start_Location_X, GC_Start_Location_Y + Current_Tick_Location).Select
+        Cells(GC_Start_Location_X + 1, GC_Start_Location_Y + Current_Tick_Location) = 0
+        Columns(GC_Start_Location_Y + Current_Tick_Location).AutoFit
+        ActiveCell.Interior.ColorIndex = 1
+        
+        If (ArrivalTime <> 0) Then
+            Current_Tick_Location = Current_Tick_Location + 1
+            Cells(GC_Start_Location_X, GC_Start_Location_Y + Current_Tick_Location).Select
+            Cells(GC_Start_Location_X, GC_Start_Location_Y + Current_Tick_Location) = "CPU IDLE"
+            Columns(GC_Start_Location_Y + Current_Tick_Location).ColumnWidth = ColumnWidthPer
+            ActiveCell.RowHeight = 25
+            ActiveCell.ColumnWidth = 4
+            ActiveCell.Font.ColorIndex = 2
+            ActiveCell.VerticalAlignment = xlCenter
+            ActiveCell.WrapText = True
+            ActiveCell.Interior.ColorIndex = 13
+            
+            Current_Tick_Location = Current_Tick_Location + 1
+            Cells(GC_Start_Location_X, GC_Start_Location_Y + Current_Tick_Location).Select
+            Cells(GC_Start_Location_X + 1, GC_Start_Location_Y + Current_Tick_Location) = ArrivalTime
+            Columns(GC_Start_Location_Y + Current_Tick_Location).AutoFit
+            ActiveCell.Interior.ColorIndex = 1
+        End If
+    End If
+    
+    Draw_CPUIDLE = False
+    'If (Current_Tick < Tick_ArrivalTime) then
+    'Current_Tick = Tick_ArrivalTime + Tick_Burst
+    If (ComboBox1.ListIndex <> 8 And Current_Tick < ArrivalTime) Or _
+       (ComboBox1.ListIndex = 8 And Current_Tick < ArrivalTime - 1) Then
+        'Current_Tick = ArrivalTime + Burst
+        
+        Current_Tick_Location = Current_Tick_Location + 1
+        Cells(GC_Start_Location_X, GC_Start_Location_Y + Current_Tick_Location).Select
+        Cells(GC_Start_Location_X, GC_Start_Location_Y + Current_Tick_Location) = "Job #" & Tick_JobNumber
+        Columns(GC_Start_Location_Y + Current_Tick_Location).ColumnWidth = ColumnWidthPer
+        ActiveCell.RowHeight = 25
+        ActiveCell.ColumnWidth = 4
+        ActiveCell.Font.ColorIndex = 2
+        ActiveCell.VerticalAlignment = xlCenter
+        ActiveCell.WrapText = True
+        ActiveCell.Interior.ColorIndex = 13
+            
+        Current_Tick_Location = Current_Tick_Location + 1
+        Cells(GC_Start_Location_X, GC_Start_Location_Y + Current_Tick_Location).Select
+        Cells(GC_Start_Location_X + 1, GC_Start_Location_Y + Current_Tick_Location) = Current_Tick
+        Columns(GC_Start_Location_Y + Current_Tick_Location).AutoFit
+        ActiveCell.Interior.ColorIndex = 1
+    
+        Current_Tick = ArrivalTime
+        
+        Current_Tick_Location = Current_Tick_Location + 1
+        Cells(GC_Start_Location_X, GC_Start_Location_Y + Current_Tick_Location).Select
+        Cells(GC_Start_Location_X, GC_Start_Location_Y + Current_Tick_Location) = "CPU IDLE"
+        Columns(GC_Start_Location_Y + Current_Tick_Location).ColumnWidth = ColumnWidthPer
+        ActiveCell.RowHeight = 25
+        ActiveCell.ColumnWidth = 4
+        ActiveCell.Font.ColorIndex = 2
+        ActiveCell.VerticalAlignment = xlCenter
+        ActiveCell.WrapText = True
+        ActiveCell.Interior.ColorIndex = 13
+        
+        Current_Tick_Location = Current_Tick_Location + 1
+        Cells(GC_Start_Location_X, GC_Start_Location_Y + Current_Tick_Location).Select
+        Cells(GC_Start_Location_X + 1, GC_Start_Location_Y + Current_Tick_Location) = Current_Tick
+        Columns(GC_Start_Location_Y + Current_Tick_Location).AutoFit
+        ActiveCell.Interior.ColorIndex = 1
+        
+        Draw_CPUIDLE = True
+    End If
+    
+    If (Tick_JobNumber = LIMIT_BREAK) Then
+        Tick_JobNumber = JobNumber
+        If ArrivalTime > Tick_ArrivalTime Then
+            Tick_ArrivalTime = ArrivalTime
+            Tick_Burst = ArrivalTime
+        End If
+        Exit Sub
+    ElseIf Tick_JobNumber = JobNumber Then
+        Tick_Burst = Tick_Burst + Burst
+        If CalculateJob(JobNumber, ArrivalTime, BurstLeft, Burst) = False Then
+            'The job isn't finish. Move the clock for the next iteration
+'            Current_Tick = Current_Tick + Burst
+        End If
+        Exit Sub
+    End If
+            
+    If (Draw_CPUIDLE = False) Then
+        Current_Tick_Location = Current_Tick_Location + 1
+        Cells(GC_Start_Location_X, GC_Start_Location_Y + Current_Tick_Location).Select
+        Cells(GC_Start_Location_X, GC_Start_Location_Y + Current_Tick_Location) = "Job #" & Tick_JobNumber
+        Columns(GC_Start_Location_Y + Current_Tick_Location).ColumnWidth = ColumnWidthPer
+        ActiveCell.RowHeight = 25
+        ActiveCell.ColumnWidth = 4
+        ActiveCell.Font.ColorIndex = 2
+        ActiveCell.VerticalAlignment = xlCenter
+        ActiveCell.WrapText = True
+        ActiveCell.Interior.ColorIndex = 13
+            
+        Current_Tick_Location = Current_Tick_Location + 1
+        Cells(GC_Start_Location_X, GC_Start_Location_Y + Current_Tick_Location).Select
+        Cells(GC_Start_Location_X + 1, GC_Start_Location_Y + Current_Tick_Location) = Current_Tick
+        Columns(GC_Start_Location_Y + Current_Tick_Location).AutoFit
+        ActiveCell.Interior.ColorIndex = 1
+        
+        Draw_CPUIDLE = False
+    End If
+    
+    CalculateJob JobNumber, ArrivalTime, BurstLeft, Burst
+    Tick_Burst = Burst
+    Tick_ArrivalTime = ArrivalTime
+    Tick_JobNumber = JobNumber
+End Sub
+                
+Private Function GetBurst(JobNumber As Integer) As Integer
+    GetBurst = Cells(Arrival_Time_Start_Location_Y + JobNumber - 1, Arrival_Time_Start_Location_X + 1)
+End Function
+                
+Private Function CalculateJob(JobNumber As Integer, ArrivalTime As Integer, BurstLeft As Integer, BurstDelta As Integer) As Boolean
+    'Track the waiting time
+    If (JobNumber = 1) Then If (DataUp_Job1 = False And WaitingTime_Job1 = 0) Then WaitingTime_Job1 = ArrivalTime + GetBurst(1)
+    If (JobNumber = 2) Then If (DataUp_Job2 = False And WaitingTime_Job2 = 0) Then WaitingTime_Job2 = ArrivalTime + GetBurst(2)
+    If (JobNumber = 3) Then If (DataUp_Job3 = False And WaitingTime_Job3 = 0) Then WaitingTime_Job3 = ArrivalTime + GetBurst(3)
+    If (JobNumber = 4) Then If (DataUp_Job4 = False And WaitingTime_Job4 = 0) Then WaitingTime_Job4 = ArrivalTime + GetBurst(4)
+    If (JobNumber = 5) Then If (DataUp_Job5 = False And WaitingTime_Job5 = 0) Then WaitingTime_Job5 = ArrivalTime + GetBurst(5)
+    
+    'Update the Job List
+    BurstLeft = BurstLeft - BurstDelta
+    
+    'Tick
+    Current_Tick = Current_Tick + BurstDelta
+    
+    If (BurstLeft > 0) Then
+        Cells(Queue_Start_Location_Y - 1, Queue_Start_Location_X) = BurstLeft
+        CalculateJob = False
+        
+        'If we are in Round-Robin Mode, edit the ArrivalTime
+        If ComboBox1.ListIndex = 8 Then
+            Cells(Queue_Start_Location_Y, Queue_Start_Location_X) = Current_Tick + 1
+        End If
+    Else
+        Cells(Queue_Start_Location_Y - 1, Queue_Start_Location_X) = ""
+        
+        Dim temp_tick As Integer
+        
+        If (Current_Tick < ArrivalTime) Then
+            temp_tick = ArrivalTime + BurstDelta
+        Else
+            temp_tick = Current_Tick
+        End If
+        
+        'Update the waiting time
+        If (DataUp_Job1 = False And JobNumber = 1) Then
+            DataUp_Job1 = True
+            WaitingTime_Job1 = temp_tick - WaitingTime_Job1
+        End If
+        If (DataUp_Job2 = False And JobNumber = 2) Then
+            DataUp_Job2 = True
+            WaitingTime_Job2 = temp_tick - WaitingTime_Job2
+        End If
+        If (DataUp_Job3 = False And JobNumber = 3) Then
+            DataUp_Job3 = True
+            WaitingTime_Job3 = temp_tick - WaitingTime_Job3
+        End If
+        If (DataUp_Job4 = False And JobNumber = 4) Then
+            DataUp_Job4 = True
+            WaitingTime_Job4 = temp_tick - WaitingTime_Job4
+        End If
+        If (DataUp_Job5 = False And JobNumber = 5) Then
+            DataUp_Job5 = True
+            WaitingTime_Job5 = temp_tick - WaitingTime_Job5
+        End If
+        
+        CalculateJob = True
+    End If
+End Function
+
+Private Function LimitBurst(BurstLeft As Integer) As Integer
+    LimitBurst = BurstLeft
+                
+    If ComboBox1.ListIndex = 6 Then
+        LimitBurst = 1
+    ElseIf ComboBox1.ListIndex = 7 Then
+        LimitBurst = 1
+    ElseIf ComboBox1.ListIndex = 8 Then
+        Dim Quantum As Integer
+        Quantum = Cells(Quantum_Cell_Location_Y, Quantum_Cell_Location_X)
+        If Quantum = 0 Then
+            MsgBox "Warning! " & vbCrLf & vbCrLf & "A Quantum of Zero is not valid. Setting Quantum to 1"
+            Cells(Quantum_Cell_Location_Y, Quantum_Cell_Location_X) = 1
+        End If
+        If BurstLeft > Quantum Then
+            LimitBurst = Quantum
+        End If
+    End If
+End Function
+
+Private Sub StartSimulation()
+    Init_SortQueue
+    
+    Do While (True)
+        If (Tick_Update() = False) Then Exit Do
+    Loop
+    
+    'Final Tick
+    Tick 0, 0, LIMIT_BREAK, 0
+    
+    ShowStat
+End Sub
+
+Private Sub ShowStat()
+    Dim TotalWaitingTime As Integer
+    Dim AverageWaitingTime As Double
+    
+    TotalWaitingTime = (WaitingTime_Job1 + WaitingTime_Job2 + WaitingTime_Job3 + WaitingTime_Job4 + WaitingTime_Job5)
+    
+    If (TotalWaitingTime > 0) Then
+        AverageWaitingTime = TotalWaitingTime / 5
+    Else
+        AverageWaitingTime = 0
+    End If
+
+    MsgBox "      [CPU Scheduling Complete]" & vbCrLf & _
+            vbCrLf & _
+            vbCrLf & _
+            "Waiting Time Stat" & vbCrLf & _
+            "~~~~~~~~~~~~~~~~~~~" & vbCrLf & _
+            vbCrLf & _
+            "Job 1: " & WaitingTime_Job1 & vbCrLf & _
+            "Job 2: " & WaitingTime_Job2 & vbCrLf & _
+            "Job 3: " & WaitingTime_Job3 & vbCrLf & _
+            "Job 4: " & WaitingTime_Job4 & vbCrLf & _
+            "Job 5: " & WaitingTime_Job5 & vbCrLf & _
+            vbCrLf & _
+            "Average Waiting Time: " & AverageWaitingTime, , "MrValdez Status Report"
+End Sub
+
+Private Sub Tick_Step_Button_Click()
+    If (Tick_Update() = False) Then
+        'Final Tick
+        Tick 0, 0, LIMIT_BREAK, 0
+        
+        ShowStat
+    End If
+End Sub
+
+Private Function Tick_Update() As Boolean
+    Tick_Update = True
+    
+    If Tick_Step_Start Then
+        Init_SortQueue
+        
+        Tick_Step_Start = False
+        Tick_Step_Done = False
+    End If
+    
+    If Tick_Step_Done Then
+        'Final Tick
+        Tick 0, 0, LIMIT_BREAK, 0
+        
+        ShowStat
+        
+        Tick_Step_Start = True
+        Tick_Step_Done = False
+        
+        Exit Function
+    End If
+    
+    If ComboBox1.ListIndex = 1 Then
+        'Sort by Arrival Time
+        SortQueue Scratch_Cell_Start_Location_Y, Scratch_Cell_Start_Location_Y + 1, True, False
+    ElseIf ComboBox1.ListIndex = 2 Then
+        'Sort by Arrival Time
+        'Sort by Burst
+        SortQueue Scratch_Cell_Start_Location_Y, Scratch_Cell_Start_Location_Y - 1, False, False
+    ElseIf ComboBox1.ListIndex = 3 Then
+        'Sort by Arrival Time
+        'Sort by Priority
+        'Reverse sort so that Priority 10 = higher and Priorty 1 = lower
+        SortQueue Scratch_Cell_Start_Location_Y, Scratch_Cell_Start_Location_Y + 2, False, True
+    ElseIf ComboBox1.ListIndex = 6 Then
+        'Sort by Arrival Time
+        'Sort by Priority
+        SortQueue Scratch_Cell_Start_Location_Y, Scratch_Cell_Start_Location_Y + 2, False, True
+    ElseIf ComboBox1.ListIndex = 7 Then
+        'Sort by Arrival Time
+        'Sort by Burst
+        SortQueue Scratch_Cell_Start_Location_Y, Scratch_Cell_Start_Location_Y - 1, False, False
+    ElseIf ComboBox1.ListIndex = 8 Then
+        'Sort by Arrival Time
+        'Sort by Burst
+        SortQueue Scratch_Cell_Start_Location_Y, Scratch_Cell_Start_Location_Y - 1, True, True
+    Else
+        MsgBox "Please select an algorithm"
+        Exit Function
+    End If
+
+    'Check if we got a job in the queue
+    If Cells(Queue_Start_Location_Y, Queue_Start_Location_X) = "" Then
+        Tick_Update = False
+        Exit Function
+    End If
+    
+    'Work on the Job
+    WorkOnJob
+    
+    Dim ArrivalTime As Integer
+    Dim BurstLeft As Integer
+    Dim JobNumber As Integer
+           
+    ArrivalTime = Cells(Scratch_Cell_Start_Location_Y + 0, Queue_Start_Location_X)
+    BurstLeft = Cells(Scratch_Cell_Start_Location_Y - 1, Queue_Start_Location_X)
+    JobNumber = Cells(Scratch_Cell_Start_Location_Y + 1, Queue_Start_Location_X)
+    
+    Dim BurstDelta As Integer
+    BurstDelta = LimitBurst(BurstLeft)
+    
+    Tick ArrivalTime, BurstDelta, JobNumber, BurstLeft
+End Function

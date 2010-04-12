@@ -1,0 +1,89 @@
+A CPU Scheduler running on Microsoft Excel 97
+
+http://github.com/MrValdez/CPU-Scheduler-in-Excel-97
+
+
+#= History =
+
+This is a CPU scheduler built running on Excel 97. I've built this as a project for a class during my Masters. Our professor made the mistake of letting us use _any_ language we want. I naturally went for the language which nobody would expect.
+
+I've never upgraded my Microsoft Office software so the only license I own is the 97 suite. As such, this code was written under Microsoft Excel 97.
+
+I got the highest grade for my project on that class. In addition, one of my classmates took my code (with my permission and prior to distributing this as an open-source project) and has used it to demonstrate the CPU scheduling algorithms to his students.
+
+Since numerous people have asked to see this code (both online and offline), I've finally decided to upload it as an open source project under the zLib license.
+
+P.s. this program was written with no intention of being released as open source. As such, the code was built for my own readability and not necessarily for others to read. In addition, I have commented out some code which after over 2 years since I've written this, I can't remember why I did so. Maybe one day, I'll clean up the code for readability.
+
+
+#= Disclaimer Warning = 
+
+This .xls file uses Macros to simulate the CPU scheduler. Its only natural for people not to trust files downloaded from the Internet. 
+
+While I can assure you that I have no malicious intent whatsoever and that the code when ran will not accesss files on your computer, I will not be responsible for any damages the code would incur on your computer. Please run this under your own risk.
+
+The plaintext for the Macro in the .xls file can be found under the code.txt file.
+
+
+#= Requirement = 
+
+Requires Microsoft Excel 97. This has not been tested on other versions of Excel as I have no access to these versions. Other users has experience problems running the program. This has been solved by enabling Macros.
+
+
+#= Usage = 
+
+The program is limited to 5 jobs. There are 3 columns: Arrival Time, Burst and Priority. Numbers can be entered into these columns to denote the three properties of a job.
+
+The Quantum value is found at cell B8 and can be changed as needed.
+
+All the values found at row 10 to 18 are used to show how the data are manipulated. This is useful to show the effect of different variables to the simulation. You can think of this as the memory of the CPU simulation.
+
+The final Gantt Chart is shown starting from Column J until the last column.
+
+There are 6 different algorithms that can be used: First Come First Serve, Shortest Job First, Non Pre-emptive Priority, Pre-emptive Priority, Shortest Remaining Time First, and Round Robin. These algorithms can be selected from the listbox at B24.
+
+To start the simulation, click on the Start button found at B26. The simulation will run and the spreadsheet will flicker*. The Gantt Chart will now output the progress of the CPU simulation. And finally, a dialog box will appear indicating the Waiting Time status of each jobs as well as the average waiting time.
+
+* this is not a bug. I intentionally left the flicker in to trick my classmates that I coded in animation. Depending on your CPU, you may or may not see the flicker.
+
+The reset button found at C26 will clear the data in the Gantt Chart and any data from row 10 to 18.
+
+The tick button found at B28 is used to move the simulation forward one CPU cycle. Pressing the start button would continue the simulation up until the jobs are completed. This is useful to see how the jobs' data are calculated in between cycles. Note: You can change the data directly by editing the cells. The next click on the tick or start button would be affected by the new variables.
+
+
+#= Viewing the Source = 
+
+To view the source, go to Tools-> Macro-> Visual Basic Editor.
+
+Alternatively, the plaintext can be found uner the code.txt file.
+
+
+#= Contact = 
+
+I can be contacted on GitHub via the Message button: http://github.com/MrValdez
+
+
+#= License = 
+
+This program is licensed under the zLib license:
+
+Copyright (c) 2008 - 2010 MrValdez
+
+This software is provided 'as-is', without any express or implied
+warranty. In no event will the authors be held liable for any damages
+arising from the use of this software.
+
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it
+freely, subject to the following restrictions:
+
+1. The origin of this software must not be misrepresented; you must not
+claim that you wrote the original software. If you use this software
+in a product, an acknowledgment in the product documentation would be
+appreciated but is not required.
+
+2. Altered source versions must be plainly marked as such, and must not be
+misrepresented as being the original software.
+
+3. This notice may not be removed or altered from any source
+distribution.
