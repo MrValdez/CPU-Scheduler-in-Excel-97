@@ -3,7 +3,7 @@ A CPU Scheduler running on Microsoft Excel 97
 http://github.com/MrValdez/CPU-Scheduler-in-Excel-97
 
 
-#= History =
+= History =
 
 This is a CPU scheduler built running on Excel 97. I've built this as a project for a class during my Masters. Our professor made the mistake of letting us use _any_ language we want. I naturally went for the language which nobody would expect.
 
@@ -16,7 +16,7 @@ Since numerous people have asked to see this code (both online and offline), I'v
 P.s. this program was written with no intention of being released as open source. As such, the code was built for my own readability and not necessarily for others to read. In addition, I have commented out some code which after over 4 years since I've first wrote this, I can't remember why I did so. Maybe one day, I'll clean up the code for readability.
 
 
-#= Disclaimer Warning = 
+= Disclaimer Warning = 
 
 This .xls file uses Macros to simulate the CPU scheduler. Its only natural for people not to trust files downloaded from the Internet. 
 
@@ -25,12 +25,12 @@ While I can assure you that I have no malicious intent whatsoever and that the c
 The plaintext for the Macro in the .xls file can be found under the code.txt file.
 
 
-#= Requirement = 
+= Requirement = 
 
 Requires Microsoft Excel 97. This has not been tested on other versions of Excel as I have no access to these versions. Other users has experience problems running the program. This has been solved by enabling Macros.
 
 
-#= Usage = 
+= Usage = 
 
 The program is limited to 5 jobs. There are 3 columns: Arrival Time, Burst and Priority. Numbers can be entered into these columns to denote the three properties of a job.
 
@@ -51,19 +51,19 @@ The reset button found at C26 will clear the data in the Gantt Chart and any dat
 The tick button found at B28 is used to move the simulation forward one CPU cycle. Pressing the start button would continue the simulation up until the jobs are completed. This is useful to see how the jobs' data are calculated in between cycles. Note: You can change the data directly by editing the cells. The next click on the tick or start button would be affected by the new variables.
 
 
-#= Viewing the Source = 
+= Viewing the Source = 
 
 To view the source, go to Tools-> Macro-> Visual Basic Editor.
 
 Alternatively, the plaintext can be found under the code.txt file.
 
 
-#= Contact = 
+= Contact = 
 
 I can be contacted on GitHub via the Message button: http://github.com/MrValdez
 
 
-#= License = 
+= License = 
 
 This program is licensed under the zLib license:
 
