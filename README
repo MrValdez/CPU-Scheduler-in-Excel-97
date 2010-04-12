@@ -20,7 +20,7 @@ P.s. this program was written with no intention of being released as open source
 
 This .xls file uses Macros to simulate the CPU scheduler. Its only natural for people not to trust files downloaded from the Internet. 
 
-While I can assure you that I have no malicious intent whatsoever and that the code when ran will not accesss files on your computer, I will not be responsible for any damages the code would incur on your computer. Please run this under your own risk.
+While I can assure you that I have no malicious intent whatsoever and that the code when ran will not access files on your computer, I will not be responsible for any damages the code would incur on your computer. Please run this under your own risk.
 
 The plaintext for the Macro in the .xls file can be found under the code.txt file.
 
@@ -55,7 +55,7 @@ The tick button found at B28 is used to move the simulation forward one CPU cycl
 
 To view the source, go to Tools-> Macro-> Visual Basic Editor.
 
-Alternatively, the plaintext can be found uner the code.txt file.
+Alternatively, the plaintext can be found under the code.txt file.
 
 
 #= Contact = 
