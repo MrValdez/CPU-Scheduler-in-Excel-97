@@ -13,7 +13,7 @@ I got the highest grade for my project on that class. In addition, one of my cla
 
 Since numerous people have asked to see this code (both online and offline), I've finally decided to upload it as an open source project under the zLib license.
 
-P.s. this program was written with no intention of being released as open source. As such, the code was built for my own readability and not necessarily for others to read. In addition, I have commented out some code which after over 2 years since I've written this, I can't remember why I did so. Maybe one day, I'll clean up the code for readability.
+P.s. this program was written with no intention of being released as open source. As such, the code was built for my own readability and not necessarily for others to read. In addition, I have commented out some code which after over 4 years since I've first wrote this, I can't remember why I did so. Maybe one day, I'll clean up the code for readability.
 
 
 #= Disclaimer Warning = 
@@ -67,7 +67,7 @@ I can be contacted on GitHub via the Message button: http://github.com/MrValdez
 
 This program is licensed under the zLib license:
 
-Copyright (c) 2008 - 2010 MrValdez
+Copyright (c) 2006 - 2010 MrValdez
 
 This software is provided 'as-is', without any express or implied
 warranty. In no event will the authors be held liable for any damages
